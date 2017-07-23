@@ -1,0 +1,6 @@
+[package]
+name = "brutegol"
+version = "0.1.0"
+authors = ["Francesco Frassinelli <fraph24@gmail.com>"]
+
+[dependencies]
