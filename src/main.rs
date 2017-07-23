@@ -13,26 +13,34 @@ fn show(table: &Vec<bool>, rows: usize, columns: usize) {
 }
 
 fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
-    let mut next = Vec::with_capacity(table.len());;
+    let mut next = Vec::with_capacity(table.len());
     let mut sum: u8;
     for i in 0..table.len() {
         sum = 0;
-        for s1 in 0..3 {
-            match s1 {
-                0 if i%columns == 0 => continue,
-                2 if (i+1)%columns == 0 => continue,
-                _ => {},
-            }
-            for s2 in 0..3 {
-                match s2 {
-                    0 if i < columns => continue,
-                    2 if i >= columns*(rows-1) => continue,
-                    1 if s1 == 1 => continue,
-                    _ => {},
-                }
-                sum += table[i+s1-1+s2*columns-columns] as u8;
-            }
-        }
+        if i%columns != 0 {
+			sum += table[i-1] as u8;
+		}
+        if (i+1)%columns != 0 {
+			sum += table[i+1] as u8;
+		}
+        if i >= columns {
+			if i%columns != 0 {
+				sum += table[i-columns-1] as u8;
+			}
+			sum += table[i-columns] as u8;
+			if (i+1)%columns != 0 {
+				sum += table[i-columns+1] as u8;
+			}
+	    }
+        if i < table.len()-columns {
+			if i%columns != 0 {
+				sum += table[i+columns-1] as u8;
+			}
+			sum += table[i+columns] as u8;
+			if (i+1)%columns != 0 {
+				sum += table[i+columns+1] as u8;
+			}
+	    }
         next.push(match sum {
             2 => table[i],
             3 => true,
