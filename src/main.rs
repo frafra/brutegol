@@ -50,6 +50,34 @@ fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
     mem::swap(table, &mut next);
 }
 
+fn discovery(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
+	let mut history = Vec::new();
+	history.push(table.to_vec());
+	let mut repeated: i8;
+	loop {
+		repeated = -1;
+		next(&mut table, rows, columns);
+		'comparison: for i in 0..history.len() {
+			for j in 0..table.len() {
+				if history[i][j] != table[j]  {
+					continue 'comparison;
+				}
+			}
+			repeated = i as i8;
+			break;
+		}
+		if repeated >= 0 {
+			break;
+		}
+		history.push(table.to_vec());
+	}
+	if repeated == 0 {
+		println!("");
+		show(&table, rows, columns);
+	}
+	mem::swap(table, &mut history[0]);
+}
+
 fn main() {
     let rows = 4;
     let columns = 4;
@@ -64,30 +92,6 @@ fn main() {
 		for _ in table.len()..table.capacity() {
 			table.push(false);
 		}
-		let mut history = Vec::new();
-		history.push(table.to_vec());
-		let mut repeated: i8;
-		loop {
-			repeated = -1;
-			next(&mut table, rows, columns);
-			'comparison: for i in 0..history.len() {
-				for j in 0..table.len() {
-					if history[i][j] != table[j]  {
-						continue 'comparison;
-					}
-				}
-				repeated = i as i8;
-				break;
-			}
-			if repeated >= 0 {
-				break;
-			}
-			history.push(table.to_vec());
-		}
-		if repeated == 0 {
-			println!("");
-			show(&table, rows, columns);
-		}
-		mem::swap(&mut table, &mut history[0]);
+		discovery(&mut table, rows, columns);
 	}
 }
