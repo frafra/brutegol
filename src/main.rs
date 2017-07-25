@@ -54,14 +54,15 @@ fn main() {
     let rows = 4;
     let columns = 4;
     let mut table = Vec::with_capacity(rows*columns);
-    for i in 0..(2u32.pow((rows*columns) as u32)) {
-		let s = format!("{:01$b}", i, rows*columns);
-		for j in 0..s.len() {
-		match s.chars().nth(j).unwrap() {
-			 '0' => table.push(false),
-			 '1' => table.push(true),
-			 _ => {},
-		 }
+    for _ in 0..(2u32.pow((rows*columns) as u32)) {
+		for _ in 0..table.len() {
+			if table.pop() == Some(false) {
+				table.push(true);
+				break;
+			}
+		}
+		for _ in table.len()..table.capacity() {
+			table.push(false);
 		}
 		let mut history = Vec::new();
 		history.push(table.to_vec());
@@ -87,6 +88,6 @@ fn main() {
 			println!("");
 			show(&table, rows, columns);
 		}
-		table.clear();
+		mem::swap(&mut table, &mut history[0]);
 	}
 }
