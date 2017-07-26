@@ -1,15 +1,19 @@
 use std::mem;
+use std::thread::spawn;
 
 fn show(table: &Vec<bool>, rows: usize, columns: usize) {
+	let mut prepare = "".to_string();
     for r in 0..rows {
         for c in 0..columns {
             match table[c+r*columns] {
-                false => print!("□"),
-                true => print!("■"),
+                false => prepare.push('x'),
+                true => prepare.push('@'),
             }
         }
-        println!();
+        prepare.push('\n');
     }
+    prepare.push('\n');
+	print!("{}", prepare);
 }
 
 fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
@@ -50,7 +54,7 @@ fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
     mem::swap(table, &mut next);
 }
 
-fn discovery(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
+fn discover(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
 	let mut history = Vec::new();
 	history.push(table.to_vec());
 	let mut repeated: i8;
@@ -72,15 +76,21 @@ fn discovery(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
 		history.push(table.to_vec());
 	}
 	if repeated == 0 {
-		println!("");
 		show(&table, rows, columns);
 	}
-	mem::swap(table, &mut history[0]);
+}
+
+fn discover_block(queue: Vec<Vec<bool>>, rows: usize, columns: usize) {
+	for mut table in queue {
+		discover(&mut table, rows, columns);
+	}
 }
 
 fn main() {
     let rows = 4;
     let columns = 4;
+    let mut thread_handles = Vec::new();
+    let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
     for _ in 0..(2u32.pow((rows*columns) as u32)) {
 		for _ in 0..table.len() {
@@ -92,6 +102,16 @@ fn main() {
 		for _ in table.len()..table.capacity() {
 			table.push(false);
 		}
-		discovery(&mut table, rows, columns);
+		queue.push(table.clone());
+		if (queue.len() as u32) == 2u32.pow((rows*columns) as u32)/4 {
+			let queue_cpy = queue.to_vec();
+		    thread_handles.push(spawn(|| {
+				discover_block(queue_cpy, 4, 4);
+			}));
+			queue.clear();
+		}
+	}
+	for handle in thread_handles {
+		handle.join().unwrap();
 	}
 }
