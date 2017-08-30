@@ -16,7 +16,7 @@ fn show(table: &Vec<bool>, rows: usize, columns: usize) {
     print!("{}", prepare);
 }
 
-fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
+pub fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
     let mut next = Vec::with_capacity(table.len());
     let mut sum: u8;
     for i in 0..table.len() {
@@ -113,5 +113,26 @@ fn main() {
     }
     for handle in thread_handles {
         handle.join().unwrap();
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn next_test() {
+        let mut table = vec![false,  true, false, false,
+                             false, false,  true, false,
+                              true,  true,  true, false,
+                             false, false, false, false];
+        let result    = vec![false, false, false, false,
+                              true, false,  true, false,
+                             false,  true,  true, false,
+                             false,  true, false, false];
+        next(&mut table, 4, 4);
+        for i in 0..table.len() {
+            assert!(table[i] == result[i]);
+        }
     }
 }
