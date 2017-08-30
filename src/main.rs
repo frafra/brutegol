@@ -1,7 +1,7 @@
 use std::mem;
 use std::thread::spawn;
 
-fn show(table: &Vec<bool>, rows: usize, columns: usize) {
+pub fn show(table: &Vec<bool>, rows: usize, columns: usize) -> String {
     let mut prepare = "".to_string();
     for r in 0..rows {
         for c in 0..columns {
@@ -14,6 +14,7 @@ fn show(table: &Vec<bool>, rows: usize, columns: usize) {
     }
     prepare.push('\n');
     print!("{}", prepare);
+    return prepare;
 }
 
 pub fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
@@ -144,5 +145,15 @@ mod test {
                               true,  true,  true, false,
                              false, false, false, false];
         assert_eq!(discover(&mut table, 4, 4), 7);
+    }
+
+    #[test]
+    fn show_test() {
+        let mut table = vec![false,  true, false, false,
+                             false, false,  true, false,
+                              true,  true,  true, false,
+                             false, false, false, false];
+        let result = "x@xx\nxx@x\n@@@x\nxxxx\n\n";
+        assert_eq!(show(&mut table, 4, 4), result);
     }
 }
