@@ -122,16 +122,20 @@ fn main() {
 mod test {
     use super::*;
 
+    fn glider() -> Vec<bool> {
+        return vec![false,  true, false, false,
+                    false, false,  true, false,
+                     true,  true,  true, false,
+                    false, false, false, false];
+    }
+
     #[test]
     fn next_test() {
-        let mut table = vec![false,  true, false, false,
-                             false, false,  true, false,
-                              true,  true,  true, false,
-                             false, false, false, false];
-        let result    = vec![false, false, false, false,
-                              true, false,  true, false,
-                             false,  true,  true, false,
-                             false,  true, false, false];
+        let mut table = glider();
+        let result = vec![false, false, false, false,
+                           true, false,  true, false,
+                          false,  true,  true, false,
+                          false,  true, false, false];
         next(&mut table, 4, 4);
         for i in 0..table.len() {
             assert_eq!(table[i], result[i]);
@@ -140,20 +144,12 @@ mod test {
 
     #[test]
     fn discover_test() {
-        let mut table = vec![false,  true, false, false,
-                             false, false,  true, false,
-                              true,  true,  true, false,
-                             false, false, false, false];
-        assert_eq!(discover(&mut table, 4, 4), 7);
+        assert_eq!(discover(&mut glider(), 4, 4), 7);
     }
 
     #[test]
     fn show_test() {
-        let mut table = vec![false,  true, false, false,
-                             false, false,  true, false,
-                              true,  true,  true, false,
-                             false, false, false, false];
         let result = "x@xx\nxx@x\n@@@x\nxxxx\n\n";
-        assert_eq!(show(&mut table, 4, 4), result);
+        assert_eq!(show(&mut glider(), 4, 4), result);
     }
 }
