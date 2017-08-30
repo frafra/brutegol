@@ -54,7 +54,7 @@ pub fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
     mem::swap(table, &mut next);
 }
 
-fn discover(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
+pub fn discover(mut table: &mut Vec<bool>, rows: usize, columns: usize) -> i8 {
     let mut history = Vec::new();
     history.push(table.to_vec());
     let mut repeated: i8;
@@ -78,6 +78,7 @@ fn discover(mut table: &mut Vec<bool>, rows: usize, columns: usize) {
     if repeated == 0 {
         show(&table, rows, columns);
     }
+    return repeated;
 }
 
 fn discover_block(queue: Vec<Vec<bool>>, rows: usize, columns: usize) {
@@ -132,7 +133,16 @@ mod test {
                              false,  true, false, false];
         next(&mut table, 4, 4);
         for i in 0..table.len() {
-            assert!(table[i] == result[i]);
+            assert_eq!(table[i], result[i]);
         }
+    }
+
+    #[test]
+    fn discover_test() {
+        let mut table = vec![false,  true, false, false,
+                             false, false,  true, false,
+                              true,  true,  true, false,
+                             false, false, false, false];
+        assert_eq!(discover(&mut table, 4, 4), 7);
     }
 }
