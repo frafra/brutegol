@@ -1,3 +1,4 @@
+use std::env;
 use std::mem;
 use std::thread::spawn;
 
@@ -89,8 +90,13 @@ fn discover_block(queue: Vec<Vec<bool>>, rows: usize, columns: usize) {
 }
 
 fn main() {
-    let rows = 4;
-    let columns = 4;
+    let args: Vec<_> = env::args().collect();
+    if args.len() != 3 {
+        println!("Usage: {} rows columns", args[0]);
+        return;
+    }
+    let rows: usize = args[1].parse().unwrap();
+    let columns: usize = args[2].parse().unwrap();
     let mut thread_handles = Vec::new();
     let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
@@ -107,8 +113,8 @@ fn main() {
         queue.push(table.clone());
         if (queue.len() as u32) == 2u32.pow((rows*columns) as u32)/4 {
             let queue_cpy = queue.to_vec();
-            thread_handles.push(spawn(|| {
-                discover_block(queue_cpy, 4, 4);
+            thread_handles.push(spawn(move || {
+                discover_block(queue_cpy, rows, columns);
             }));
             queue.clear();
         }
