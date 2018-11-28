@@ -17,7 +17,7 @@ pub fn show(table: &Vec<bool>, rows: usize, columns: usize) -> String {
     return prepare;
 }
 
-pub fn next(table: &mut Vec<bool>, rows: usize, columns: usize) {
+pub fn next(table: &mut Vec<bool>, _rows: usize, columns: usize) {
     let mut next = Vec::with_capacity(table.len());
     let mut sum: u8;
     for i in 0..table.len() {
