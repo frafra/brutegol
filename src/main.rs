@@ -111,7 +111,7 @@ fn main() {
             table.push(false);
         }
         queue.push(table.clone());
-        if (queue.len() as u32) == 2u32.pow((rows*columns) as u32)/4 {
+        if (queue.len() as u32) == 2u32.pow((rows*columns) as u32)/8 {
             let queue_cpy = queue.to_vec();
             thread_handles.push(spawn(move || {
                 discover_block(queue_cpy, rows, columns);
