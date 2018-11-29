@@ -1,3 +1,5 @@
+extern crate num_cpus;
+
 use std::env;
 use std::mem;
 use std::thread;
@@ -97,6 +99,7 @@ fn main() {
     }
     let rows: usize = args[1].parse().unwrap();
     let columns: usize = args[2].parse().unwrap();
+    let num_cpus = num_cpus::get();
     let mut thread_handles = Vec::new();
     let mut thread:thread::JoinHandle<_>;
     let mut queue = Vec::new();
@@ -155,7 +158,7 @@ fn main() {
             thread_handles.push(thread::spawn(move || {
                 discover_block(queue, rows, columns);
             }));
-            if thread_handles.len() == 8 {
+            if thread_handles.len() == num_cpus {
                 thread = thread_handles.remove(0);
                 thread.join().expect("Unable to join the thread");
             }

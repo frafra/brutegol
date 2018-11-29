@@ -4,3 +4,4 @@ version = "0.2.2"
 authors = ["Francesco Frassinelli <fraph24@gmail.com>"]
 
 [dependencies]
+num_cpus = "1.0"
