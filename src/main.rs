@@ -1,6 +1,6 @@
 use std::env;
 use std::mem;
-use std::thread::spawn;
+use std::thread;
 
 pub fn show(table: &Vec<bool>, rows: usize, columns: usize) -> String {
     let mut prepare = "".to_string();
@@ -98,9 +98,11 @@ fn main() {
     let rows: usize = args[1].parse().unwrap();
     let columns: usize = args[2].parse().unwrap();
     let mut thread_handles = Vec::new();
+    let mut thread:thread::JoinHandle<_>;
     let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
-    for _ in 0..(2u32.pow((rows*columns) as u32)) {
+    let mut p: usize;
+    'generate: for _ in 0..(2u32.pow((rows*columns) as u32)) {
         for _ in 0..table.len() {
             if table.pop() == Some(false) {
                 table.push(true);
@@ -110,15 +112,57 @@ fn main() {
         for _ in table.len()..table.capacity() {
             table.push(false);
         }
+        /* Skip 180° rotations */
+        for i in 0..table.len() {
+            p = table.len()-1-i;
+            if table[i] > table[p] {
+                continue 'generate;
+            } else if table[i] < table[p] {
+                break;
+            }
+        }
+        /* Skip horizontal reflections */
+        for i in 0..table.len() {
+            p = table.len()-1-i+i%columns-columns/2;
+            if table[i] > table[p] {
+                continue 'generate;
+            } else if table[i] < table[p] {
+                break;
+            }
+        }
+        /* Skip vertical reflections */
+        for i in 0..table.len() {
+            p = i+(columns-i-1)%columns/2;
+            if table[i] > table[p] {
+                continue 'generate;
+            } else if table[i] < table[p] {
+                break;
+            }
+        }
+        /* Skip diagonal reflections */
+        if rows == columns {
+            for i in 0..table.len() {
+                p = i%rows*columns+i/rows;
+                if table[i] > table[p] {
+                    continue 'generate;
+                } else if table[i] < table[p] {
+                    break;
+                }
+            }
+        }
         queue.push(table.clone());
-        if (queue.len() as u32) == 2u32.pow((rows*columns) as u32)/8 {
-            let queue_cpy = queue.to_vec();
-            thread_handles.push(spawn(move || {
-                discover_block(queue_cpy, rows, columns);
+        if queue.len() > 2usize.pow(16) {
+            thread_handles.push(thread::spawn(move || {
+                discover_block(queue, rows, columns);
             }));
-            queue.clear();
+            if thread_handles.len() == 8 {
+                thread = thread_handles.remove(0);
+                thread.join().expect("Unable to join the thread");
+            }
+            queue = Vec::new();
         }
     }
+    discover_block(queue, rows, columns); // Remaining tables
     for handle in thread_handles {
         handle.join().unwrap();
     }
