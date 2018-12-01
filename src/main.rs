@@ -126,6 +126,14 @@ fn main() {
     let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
     let mut p: usize;
+    let mut transformations: Vec<fn(usize, usize, usize, usize) -> usize> = vec![
+        rotate_180,
+        mirror_horizontal,
+        mirror_vertical,
+    ];
+    if rows == columns {
+        transformations.push(mirror_diagonal);
+    }
     'generate: for _ in 0..(2u32.pow((rows*columns) as u32)) {
         for _ in 0..table.len() {
             if table.pop() == Some(false) {
@@ -136,37 +144,9 @@ fn main() {
         for _ in table.len()..table.capacity() {
             table.push(false);
         }
-        /* Skip 180° rotations */
-        for i in 0..table.len() {
-            p = rotate_180(table.len(), rows, columns, i);
-            if table[i] > table[p] {
-                continue 'generate;
-            } else if table[i] < table[p] {
-                break;
-            }
-        }
-        /* Skip horizontal reflections */
-        for i in 0..table.len() {
-            p = mirror_horizontal(table.len(), rows, columns, i);
-            if table[i] > table[p] {
-                continue 'generate;
-            } else if table[i] < table[p] {
-                break;
-            }
-        }
-        /* Skip vertical reflections */
-        for i in 0..table.len() {
-            p = mirror_vertical(table.len(), rows, columns, i);
-            if table[i] > table[p] {
-                continue 'generate;
-            } else if table[i] < table[p] {
-                break;
-            }
-        }
-        /* Skip diagonal reflections */
-        if rows == columns {
+        for transformation in transformations.iter() {
             for i in 0..table.len() {
-                p = mirror_diagonal(table.len(), rows, columns, i);
+                p = transformation(table.len(), rows, columns, i);
                 if table[i] > table[p] {
                     continue 'generate;
                 } else if table[i] < table[p] {
