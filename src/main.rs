@@ -108,6 +108,11 @@ fn mirror_diagonal(len: usize, rows: usize, columns: usize, i: usize) -> usize {
     return i%columns*rows+i/columns;
 }
 
+fn mirror_diagonal2(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_vertical(len, rows, columns, i);
+    return mirror_diagonal(len, rows, columns, p);
+}
+
 fn rotate_180(len: usize, rows: usize, columns: usize, i: usize) -> usize {
     return len-1-i;
 }
@@ -133,6 +138,7 @@ fn main() {
     ];
     if rows == columns {
         transformations.push(mirror_diagonal);
+        transformations.push(mirror_diagonal2);
     }
     'generate: for _ in 0..(2u32.pow((rows*columns) as u32)) {
         for _ in 0..table.len() {
