@@ -117,6 +117,16 @@ fn rotate_180(len: usize, rows: usize, columns: usize, i: usize) -> usize {
     return len-1-i;
 }
 
+fn rotate_90(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_diagonal(len, rows, columns, i);
+    return mirror_vertical(len, rows, columns, p);
+}
+
+fn rotate_270(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_diagonal2(len, rows, columns, i);
+    return mirror_vertical(len, rows, columns, p);
+}
+
 fn main() {
     let args: Vec<_> = env::args().collect();
     if args.len() != 3 {
@@ -139,6 +149,8 @@ fn main() {
     if rows == columns {
         transformations.push(mirror_diagonal);
         transformations.push(mirror_diagonal2);
+        transformations.push(rotate_90);
+        transformations.push(rotate_270);
     }
     'generate: for _ in 0..(2u32.pow((rows*columns) as u32)) {
         for _ in 0..table.len() {
