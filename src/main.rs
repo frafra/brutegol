@@ -81,7 +81,7 @@ pub fn discover(mut table: &mut Vec<bool>, rows: usize, columns: usize) -> i8 {
         }
         history.push(table.to_vec());
     }
-    if repeated == 0 {
+    if repeated == 0 && history.len() > 1 {
         show(&table, rows, columns);
     }
     return repeated;
