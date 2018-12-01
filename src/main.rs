@@ -1,3 +1,5 @@
+#[cfg(test)]
+extern crate quickcheck;
 extern crate num_cpus;
 
 use std::env;
@@ -91,6 +93,25 @@ fn discover_block(queue: Vec<Vec<bool>>, rows: usize, columns: usize) {
     }
 }
 
+fn mirror_horizontal(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    return i%columns+(rows-1-i/columns)*columns;
+}
+
+fn mirror_vertical(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    return i+columns-2*(i%columns)-1;
+}
+
+fn mirror_diagonal(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    if rows == 1 {
+        return i;
+    }
+    return i%columns*rows+i/columns;
+}
+
+fn rotate_180(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+    return len-1-i;
+}
+
 fn main() {
     let args: Vec<_> = env::args().collect();
     if args.len() != 3 {
@@ -117,7 +138,7 @@ fn main() {
         }
         /* Skip 180° rotations */
         for i in 0..table.len() {
-            p = table.len()-1-i;
+            p = rotate_180(table.len(), rows, columns, i);
             if table[i] > table[p] {
                 continue 'generate;
             } else if table[i] < table[p] {
@@ -126,7 +147,7 @@ fn main() {
         }
         /* Skip horizontal reflections */
         for i in 0..table.len() {
-            p = table.len()-1-i+i%columns-columns/2;
+            p = mirror_horizontal(table.len(), rows, columns, i);
             if table[i] > table[p] {
                 continue 'generate;
             } else if table[i] < table[p] {
@@ -135,7 +156,7 @@ fn main() {
         }
         /* Skip vertical reflections */
         for i in 0..table.len() {
-            p = i+(columns-i-1)%columns/2;
+            p = mirror_vertical(table.len(), rows, columns, i);
             if table[i] > table[p] {
                 continue 'generate;
             } else if table[i] < table[p] {
@@ -145,7 +166,7 @@ fn main() {
         /* Skip diagonal reflections */
         if rows == columns {
             for i in 0..table.len() {
-                p = i%rows*columns+i/rows;
+                p = mirror_diagonal(table.len(), rows, columns, i);
                 if table[i] > table[p] {
                     continue 'generate;
                 } else if table[i] < table[p] {
@@ -173,6 +194,7 @@ fn main() {
 
 #[cfg(test)]
 mod test {
+    use quickcheck::*;
     use super::*;
 
     fn glider() -> Vec<bool> {
@@ -204,5 +226,57 @@ mod test {
     fn show_test() {
         let result = "x@xx\nxx@x\n@@@x\nxxxx\n\n";
         assert_eq!(show(&mut glider(), 4, 4), result);
+    }
+
+    quickcheck! {
+        fn rotate_180_test(rows: usize, columns: usize, i: usize) -> bool {
+            if i >= rows*columns {
+                return true;
+            }
+            let mut pos = i;
+            for _ in 0..2 {
+                pos = rotate_180(rows*columns, rows, columns, pos);
+            }
+            return i == pos;
+        }
+    }
+
+    quickcheck! {
+        fn mirror_horizontal_test(rows: usize, columns: usize, i: usize) -> bool {
+            if i >= rows*columns {
+                return true;
+            }
+            let mut pos = i;
+            for _ in 0..2 {
+                pos = mirror_horizontal(rows*columns, rows, columns, pos);
+            }
+            return i == pos;
+        }
+    }
+
+    quickcheck! {
+        fn mirror_horizontal_vertical(rows: usize, columns: usize, i: usize) -> bool {
+            if i >= rows*columns {
+                return true;
+            }
+            let mut pos = i;
+            for _ in 0..2 {
+                pos = mirror_vertical(rows*columns, rows, columns, pos);
+            }
+            return i == pos;
+        }
+    }
+
+    quickcheck! {
+        fn mirror_diagonal_test(size: usize, i: usize) -> bool {
+            if i >= size*size {
+                return true;
+            }
+            let mut pos = i;
+            for _ in 0..2 {
+                pos = mirror_diagonal(size*size, size, size, pos);
+            }
+            return i == pos;
+        }
     }
 }
