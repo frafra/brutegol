@@ -93,38 +93,38 @@ fn discover_block(queue: Vec<Vec<bool>>, rows: usize, columns: usize) {
     }
 }
 
-fn mirror_horizontal(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+fn mirror_horizontal(rows: usize, columns: usize, i: usize) -> usize {
     return i%columns+(rows-1-i/columns)*columns;
 }
 
-fn mirror_vertical(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+fn mirror_vertical(_rows: usize, columns: usize, i: usize) -> usize {
     return i+columns-2*(i%columns)-1;
 }
 
-fn mirror_diagonal(len: usize, rows: usize, columns: usize, i: usize) -> usize {
+fn mirror_diagonal(rows: usize, columns: usize, i: usize) -> usize {
     if rows == 1 {
         return i;
     }
     return i%columns*rows+i/columns;
 }
 
-fn mirror_diagonal2(len: usize, rows: usize, columns: usize, i: usize) -> usize {
-    let p = mirror_vertical(len, rows, columns, i);
-    return mirror_diagonal(len, rows, columns, p);
+fn mirror_diagonal2(rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_vertical(rows, columns, i);
+    return mirror_diagonal(rows, columns, p);
 }
 
-fn rotate_180(len: usize, rows: usize, columns: usize, i: usize) -> usize {
-    return len-1-i;
+fn rotate_180(rows: usize, columns: usize, i: usize) -> usize {
+    return rows*columns-1-i;
 }
 
-fn rotate_90(len: usize, rows: usize, columns: usize, i: usize) -> usize {
-    let p = mirror_diagonal(len, rows, columns, i);
-    return mirror_vertical(len, rows, columns, p);
+fn rotate_90(rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_diagonal(rows, columns, i);
+    return mirror_vertical(rows, columns, p);
 }
 
-fn rotate_270(len: usize, rows: usize, columns: usize, i: usize) -> usize {
-    let p = mirror_diagonal2(len, rows, columns, i);
-    return mirror_vertical(len, rows, columns, p);
+fn rotate_270(rows: usize, columns: usize, i: usize) -> usize {
+    let p = mirror_diagonal2(rows, columns, i);
+    return mirror_vertical(rows, columns, p);
 }
 
 fn main() {
@@ -141,7 +141,7 @@ fn main() {
     let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
     let mut p: usize;
-    let mut transformations: Vec<fn(usize, usize, usize, usize) -> usize> = vec![
+    let mut transformations: Vec<fn(usize, usize, usize) -> usize> = vec![
         rotate_180,
         mirror_horizontal,
         mirror_vertical,
@@ -164,7 +164,7 @@ fn main() {
         }
         for transformation in transformations.iter() {
             for i in 0..table.len() {
-                p = transformation(table.len(), rows, columns, i);
+                p = transformation(rows, columns, i);
                 if table[i] > table[p] {
                     continue 'generate;
                 } else if table[i] < table[p] {
@@ -233,7 +233,7 @@ mod test {
             }
             let mut pos = i;
             for _ in 0..2 {
-                pos = rotate_180(rows*columns, rows, columns, pos);
+                pos = rotate_180(rows, columns, pos);
             }
             return i == pos;
         }
@@ -246,7 +246,7 @@ mod test {
             }
             let mut pos = i;
             for _ in 0..2 {
-                pos = mirror_horizontal(rows*columns, rows, columns, pos);
+                pos = mirror_horizontal(rows, columns, pos);
             }
             return i == pos;
         }
@@ -259,7 +259,7 @@ mod test {
             }
             let mut pos = i;
             for _ in 0..2 {
-                pos = mirror_vertical(rows*columns, rows, columns, pos);
+                pos = mirror_vertical(rows, columns, pos);
             }
             return i == pos;
         }
@@ -272,7 +272,7 @@ mod test {
             }
             let mut pos = i;
             for _ in 0..2 {
-                pos = mirror_diagonal(size*size, size, size, pos);
+                pos = mirror_diagonal(size, size, pos);
             }
             return i == pos;
         }
