@@ -140,7 +140,7 @@ fn main() {
     let mut thread:thread::JoinHandle<_>;
     let mut queue = Vec::new();
     let mut table = Vec::with_capacity(rows*columns);
-    let mut p: usize;
+    let mut transformed: Vec<Vec<usize>> = Vec::new();
     let mut transformations: Vec<fn(usize, usize, usize) -> usize> = vec![
         rotate_180,
         mirror_horizontal,
@@ -152,6 +152,13 @@ fn main() {
         transformations.push(rotate_90);
         transformations.push(rotate_270);
     }
+    for transformation in transformations.iter() {
+        let mut table_transformed: Vec<usize> = Vec::new();
+        for i in 0..rows*columns {
+            table_transformed.push(transformation(rows, columns, i));
+        }
+        transformed.push(table_transformed);
+    }
     'generate: for _ in 0..(2u32.pow((rows*columns) as u32)) {
         for _ in 0..table.len() {
             if table.pop() == Some(false) {
@@ -162,12 +169,11 @@ fn main() {
         for _ in table.len()..table.capacity() {
             table.push(false);
         }
-        for transformation in transformations.iter() {
-            for i in 0..table.len() {
-                p = transformation(rows, columns, i);
-                if table[i] > table[p] {
+        for positions in transformed.iter() {
+            for (i, p) in positions.iter().enumerate() {
+                if table[i] > table[*p] {
                     continue 'generate;
-                } else if table[i] < table[p] {
+                } else if table[i] < table[*p] {
                     break;
                 }
             }
