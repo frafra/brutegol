@@ -7,4 +7,4 @@ authors = ["Francesco Frassinelli <fraph24@gmail.com>"]
 num_cpus = "1.11"
 
 [dev-dependencies]
-quickcheck = "0.6"
+quickcheck = "0.9"
