@@ -4,7 +4,7 @@ version = "0.3.0"
 authors = ["Francesco Frassinelli <fraph24@gmail.com>"]
 
 [dependencies]
-num_cpus = "1.11"
+num_cpus = "1.13"
 
 [dev-dependencies]
 quickcheck = "0.9"
